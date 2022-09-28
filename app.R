@@ -1,5 +1,6 @@
 library(shiny)
-#devtools::install_github("Schdomba/advancedRLab5")
+if(!("advancedRLab5" %in% installed.packages())) 
+   { stop("Install advancedRLab5 package first, use devtools::install_github(\"Schdomba/advancedRLab5\")") }
 library("advancedRLab5")
 
 ui <- fluidPage(
@@ -12,9 +13,6 @@ ui <- fluidPage(
       actionButton(inputId = "submit",label  = "Search", icon = NULL, width = '20%',
                    style="color: #fff; background-color: #EE6E15; border-color: #2e6da4;"))
       ),
-      # fluidRow(
-      #   column(12,offset = 0)
-      # ),
       fluidRow(
         column(3,offset = 0,
       actionButton(inputId = "prev",label = "Previous",width = '100%',
@@ -24,43 +22,37 @@ ui <- fluidPage(
                    style="color: #fff; background-color: #337ab7; border-color: #2e6da4")))
 
     ),
-    mainPanel(plotOutput(outputId = "plots")
+    mainPanel(plotOutput(outputId = "plots"),
+              (textOutput("i"))
+              
 
     )
   )
 
 )
 
-#' Server Function of Shiny App
-#'
-#' @param input The inputs from the user
-#' @param output The server outputs, in this case, the plots.
-#' @import advancedRLab5
-#'
-#' @return
-#' @export
-#'
-#'
 server <- function(input, output)
 {
   count <- reactiveValues(i = 1)
+  name <- reactiveValues(muni_name = "Stockholm")
   observeEvent(input$prev,{
     ifelse(count$i==1,count$i<-7,count$i <- (count$i-1))
-    # print(i)
+    
     })
   observeEvent(input$nxt,{
     ifelse(count$i==7,count$i <- 1,count$i <- (count$i+1))
-    # print(i)
+    
     })
   observeEvent(input$submit,{
-    output$plots <- renderPlot({
-    plot_figures(input$muni_name)[[count$i]]
+    name$muni_name <- input$muni_name
+  })
+  
+  output$plots <- renderPlot({
+    plot_figures(name$muni_name)[[count$i]]
   })
 
-  })
 
-
-     output$i <- renderPrint(count$i)
+     output$i <- renderPrint(paste("Graph",count$i,"of 7")[1])
 }
 
 shinyApp(ui,server)
